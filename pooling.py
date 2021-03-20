@@ -1,8 +1,8 @@
-import psycopg2
 import logging
 import time
-
 from contextlib import contextmanager
+
+import psycopg2
 
 POOL_DELAY = 0.001
 READ_ONLY = 'ro'
@@ -14,6 +14,7 @@ class DBPool(object):
     """
     DB Pool which handles database connections.
     """
+
     def __init__(self, user, password, db_name, host, port, ttl, pool_size):
         self._connection_pool = []
         self.connection_pointer = 0
@@ -126,12 +127,24 @@ def pool_manager(pool_name):
     read or update database
     """
     if DB_POOL[pool_name] is None:
-        DB_POOL[pool_name] = DBPool('postgres', 'postgres', 'postgres_pool', 'localhost', '5432', 600, 20)
+        DB_POOL[pool_name] = DBPool(user='postgres',
+                                    password='postgres',
+                                    db_name='postgres_pool',
+                                    host='localhost',
+                                    port='5432',
+                                    ttl=600,
+                                    pool_size=20)
     return DB_POOL[pool_name]
 
 
 try:
-    postgres_pool = DBPool('postgres', 'postgres', 'postgres_pool', 'localhost', '5432', 600, 20)
+    postgres_pool = DBPool(user='postgres',
+                           password='postgres',
+                           db_name='postgres_pool',
+                           host='localhost',
+                           port='5432',
+                           ttl=600,
+                           pool_size=20)
     if postgres_pool:
         print('Connection pool created successfully.')
 

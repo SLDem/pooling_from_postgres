@@ -4,8 +4,10 @@ import time
 
 from contextlib import contextmanager
 
-
 POOL_DELAY = 0.001
+READ_ONLY = 'ro'
+READ_WRITE = 'rw'
+DB_POOL = {READ_ONLY: None, READ_WRITE: None}
 
 
 class DBPool(object):
@@ -116,6 +118,16 @@ class DBPool(object):
         self.log.info('Returning connection {} to pool'.format(connection['connection']))
         connection['last_update'] = time.time()
         self._connection_pool.append(connection)
+
+
+def pool_manager(pool_name):
+    """
+    Manages work with connections to
+    read or update database
+    """
+    if DB_POOL[pool_name] is None:
+        DB_POOL[pool_name] = DBPool('postgres', 'postgres', 'postgres_pool', 'localhost', '5432', 600, 20)
+    return DB_POOL[pool_name]
 
 
 try:

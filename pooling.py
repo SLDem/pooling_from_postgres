@@ -1,5 +1,4 @@
 import psycopg2
-from psycopg2 import pool
 import logging
 import time
 
@@ -120,20 +119,14 @@ class DBPool(object):
 
 
 try:
-    postgres_pool = psycopg2.pool.SimpleConnectionPool(1,  # minimum connections
-                                                       20,  # maximum connections
-                                                       user='postgres',
-                                                       password='postgres',
-                                                       host='localhost',
-                                                       port='5432',
-                                                       database='postgres_pool')
+    postgres_pool = DBPool('postgres', 'postgres', 'postgres_pool', 'localhost', '5432', 600, 20)
     if postgres_pool:
         print('Connection pool created successfully.')
 
-    postgres_connection = postgres_pool.getconn()
+    postgres_connection = postgres_pool._get_connection()
     if postgres_connection:
         print('Successfully received connection from connection pool.')
-        postgres_cursor = postgres_connection.cursor()
+        postgres_cursor = postgres_connection['connection'].cursor()
         postgres_cursor.execute('select * from users')
         users = postgres_cursor.fetchall()
 
@@ -142,7 +135,7 @@ try:
 
         postgres_cursor.close()
 
-        postgres_pool.putconn(postgres_connection)
+        postgres_pool._close_connection(postgres_connection)
         print('Put away a postgres connection.')
 
 except (Exception, psycopg2.DatabaseError) as err:
@@ -152,4 +145,3 @@ finally:
     if postgres_pool:
         postgres_pool.closeall
     print('Postgresql pool connection pool is closed.')
-    

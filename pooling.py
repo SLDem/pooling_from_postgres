@@ -168,5 +168,5 @@ except (Exception, psycopg2.DatabaseError) as err:
 
 finally:
     if postgres_pool:
-        postgres_pool.closeall
+        postgres_pool._close_connection(postgres_connection)
     print('Postgresql pool connection pool is closed.')
